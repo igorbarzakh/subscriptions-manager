@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/shared/lib/auth';
 import { Header } from '@/widgets/header/ui/header';
@@ -64,9 +63,18 @@ const FAQ = [
   },
 ];
 
+function RouteButton({ isLoggedIn }: { isLoggedIn: boolean }) {
+  return (
+    <Link className="hover:text-slate-900 block" href={isLoggedIn ? '/dashboard' : '/login'}>
+      <Button size="lg" className="w-full sm:w-auto">
+        {isLoggedIn ? 'Перейти в панель' : 'Начать'}
+      </Button>
+    </Link>
+  );
+}
+
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
-  if (session?.user) redirect('/dashboard');
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -87,12 +95,10 @@ export default async function HomePage() {
                 Один список. Чёткая картина. Полный контроль
               </p>
 
+              <RouteButton isLoggedIn={!!session?.user} />
+
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <Link href="/login">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Начать
-                  </Button>
-                </Link>
+                <Link href="/login"></Link>
               </div>
             </div>
 
@@ -195,11 +201,7 @@ export default async function HomePage() {
             </div>
 
             <div className="mt-8">
-              <Link href="/login">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Начать
-                </Button>
-              </Link>
+              <RouteButton isLoggedIn={!!session?.user} />
             </div>
           </Card>
         </section>
@@ -220,18 +222,11 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <footer className="pb-10 sm:pb-14">
+        <footer className="pb-10 sm:pb-12">
           <Separator className="mb-6" />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-slate-500">
             <div>© {new Date().getFullYear()} Subscriptions Manager</div>
-            <div className="flex gap-4">
-              <Link className="hover:text-slate-900" href="/login">
-                Войти
-              </Link>
-              <Link className="hover:text-slate-900" href="/dashboard">
-                Dashboard
-              </Link>
-            </div>
+            <p className="text-slate-500">All rights reserved</p>
           </div>
         </footer>
       </main>
