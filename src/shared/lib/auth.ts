@@ -7,24 +7,24 @@ import { prisma } from '@/shared/lib/prisma';
 import { compare } from 'bcryptjs';
 
 export const authOptions: NextAuthOptions = {
+  debug: true,
   adapter: PrismaAdapter(prisma) as ReturnType<typeof PrismaAdapter>,
   session: {
     strategy: 'jwt',
   },
   providers: [
-    // 1) Google OAuth
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
 
-    // 2) GitHub OAuth
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
 
-    // 3) Email + password
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -43,7 +43,6 @@ export const authOptions: NextAuthOptions = {
         const isValid = await compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
 
-        // Важно вернуть объект с id + email хотя бы
         return {
           id: user.id,
           email: user.email,
@@ -53,7 +52,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: '/auth/login',
+    signIn: '/login',
   },
   callbacks: {
     async jwt({ token, user }) {

@@ -8,7 +8,6 @@ const globalForPrisma = globalThis as unknown as {
   pgPool?: Pool;
 };
 
-// один общий пул соединений
 const pool = globalForPrisma.pgPool ?? new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 
