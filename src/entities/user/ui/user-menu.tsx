@@ -24,9 +24,6 @@ export function UserMenu({ user }: Props) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem onClick={() => (window.location.href = '/dashboard')}>
-          Dashboard
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>Выйти</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,14 +1,28 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/shared/ui/card';
+import { Card } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
-import { Badge } from '@/shared/ui/badge';
+import { EmptyDashboard } from './empty-dashboard';
 
-const mockStats = {
-  perMonth: 34.98,
-  perYear: 419.76,
-  count: 3,
+type Subscription = {
+  id: string;
+  name: string;
+  priceCents: number;
+  currency: string;
+  nextChargeDate: Date;
 };
 
-export function Dashboard() {
+function formatMoney(cents: number, currency: string) {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency,
+  }).format(cents / 100);
+}
+
+export function Dashboard({ subs = [] }: { subs: Subscription[] }) {
+  if (subs.length === 0) return <EmptyDashboard />;
+
+  const perMonthCents = subs.reduce((sum, s) => sum + s.priceCents, 0);
+  const perYearCents = perMonthCents * 12;
+
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 space-y-6">
       <section className="flex items-center justify-between">
@@ -21,44 +35,41 @@ export function Dashboard() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>В месяц</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">€{mockStats.perMonth}</div>
-          </CardContent>
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">В месяц</div>
+          <div className="mt-2 text-2xl font-semibold">{formatMoney(perMonthCents, 'EUR')}</div>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>В год</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">€{mockStats.perYear}</div>
-          </CardContent>
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">В год</div>
+          <div className="mt-2 text-2xl font-semibold">{formatMoney(perYearCents, 'EUR')}</div>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Подписок</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{mockStats.count}</div>
-          </CardContent>
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">Подписок</div>
+          <div className="mt-2 text-2xl font-semibold">{subs.length}</div>
         </Card>
       </section>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Активные подписки</CardTitle>
-            <Badge variant="secondary">мок</Badge>
+      <Card className="p-4">
+        <div className="mb-3 text-sm font-semibold">Ближайшие платежи</div>
+        {subs.length === 0 ? (
+          <div className="text-sm text-slate-500">Пока нет подписок. Добавь первую 👇</div>
+        ) : (
+          <div className="space-y-2">
+            {subs.slice(0, 5).map((s) => (
+              <div key={s.id} className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium">{s.name}</div>
+                  <div className="text-xs text-slate-500">
+                    {new Date(s.nextChargeDate).toLocaleDateString('ru-RU')}
+                  </div>
+                </div>
+                <div className="text-sm font-semibold">{formatMoney(s.priceCents, s.currency)}</div>
+              </div>
+            ))}
           </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-slate-500">Здесь скоро будет список подписок</p>
-        </CardContent>
+        )}
       </Card>
     </main>
   );
